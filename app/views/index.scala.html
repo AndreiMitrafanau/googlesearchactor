@@ -1,0 +1,66 @@
+@(message: String)
+
+@main(message) {
+    <script language="javascript" type="text/javascript">
+            var wsUri = "ws://localhost:9000/ask";
+            var output;
+            websocket;
+
+            function init() {
+               doSend(document.getElementById("text").value);
+            }
+
+            function createSocket() {
+                output = document.getElementById("output");
+                websocket = new WebSocket(wsUri);
+                websocket.onopen = function(evt) { onOpen(evt) };
+                websocket.onclose = function(evt) { onClose(evt) };
+                websocket.onmessage = function(evt) { onMessage(evt) };
+                websocket.onerror = function(evt) { onError(evt) };
+            }
+
+            function onOpen(evt) {
+                writeToScreen("CONNECTED");
+            }
+
+            function onClose(evt) {
+                writeToScreen("DISCONNECTED");
+            }
+
+            function onMessage(evt) {
+                writeToScreen('<span style="color: blue;">RESPONSE: ' + evt.data+'</span>');
+            }
+
+            function onError(evt) {
+                writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+            }
+
+            function doSend(message) {
+                writeToScreen("SENT: " + message);
+                websocket.send(message);
+            }
+
+            function writeToScreen(message) {
+                var pre = document.createElement("p");
+                pre.style.wordWrap = "break-word";
+                pre.innerHTML = message;
+                output.appendChild(pre);
+            }
+
+            window.addEventListener("load", createSocket, false);
+    </script>
+
+    <h1>Google queries</h1>
+
+    <div id="wrapper">
+        <div id="container">
+            <h2>WebSockets Client, click "Connect"</h2>
+            <p id="examples">Use any string to query. Type "history" to see queries history</p>
+            <input id="text" type="text" />
+            <button id="send" onclick="init()">Send</button>
+            <button id="connect" onclick="createSocket()" >Connect</button>
+        </div>
+    </div>
+
+    <div id="output"></div>
+}
